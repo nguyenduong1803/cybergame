@@ -12,7 +12,7 @@ router.get("", orderController.getAll);
 router.get("/detail/:id", orderController.detailOrder);
 router.get("/statistic-product", orderController.statisticProductOrder);
 router.get("/statistic-room", orderController.statisticRoomOrder);
-router.get("/statistic-revenue", orderController.statisticTotalPrice);
+router.post("/statistic-revenue", orderController.statisticTotalPrice);
 
 router.post("/add/payment", paymentController.createPayment);
 router.get("/save-payment", paymentController.savePayment);

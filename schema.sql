@@ -116,3 +116,25 @@ ALTER TABLE `room_order_detail` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`
 
 ALTER TABLE `desktop` ADD FOREIGN KEY (`room_id`) REFERENCES `room` (`id`);
 
+
+
+SELECT 
+    room.id,
+    room.room_name, 
+    room.capacity,
+    COUNT(DISTINCT desktop.room_id) AS desktop_count,
+    GROUP_CONCAT(
+        CONCAT(
+            DATE_FORMAT(rod.start_time, '%d-%m-%Y %H:%i')," - ",
+             DATE_FORMAT(rod.end_time, '%d-%m-%Y %H:%i')
+        ) SEPARATOR '; '
+    ) AS booking_times
+FROM cybergame.room
+LEFT JOIN cybergame.desktop ON room.id = desktop.room_id
+LEFT JOIN cybergame.room_order_detail rod ON room.id = rod.room_id
+WHERE rod.start_time > NOW()
+GROUP BY 
+    room.id, 
+    room.room_name, 
+    room.capacity
+ORDER BY room.id;

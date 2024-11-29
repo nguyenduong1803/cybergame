@@ -36,7 +36,6 @@ const pool = mysql.createPool({
 async function updateRoomStatus() {
   pool.getConnection(async(err, connection)=>{
     try {
-
       return new Promise((resolve, reject) => {
         connection.query(`
           UPDATE room r

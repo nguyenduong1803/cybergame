@@ -8,5 +8,6 @@ router.delete("/remove/:id", roomController.deleteById);
 router.get("/searchById/:id", roomController.findById);
 router.get("", roomController.getAll);
 router.get("/get-by-count-desktop", roomController.getAllRoomCountDesktop);
+router.get("/get-all-timeline", roomController.getAllTimeLine);
 
 export default router;

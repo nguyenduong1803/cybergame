@@ -99,19 +99,33 @@ LIMIT 5;`;
     });
   }
 
-  statisticTotalPrice() {
+  statisticTotalPrice(startDate = null, endDate = null) {
     return new Promise((resolve, reject) => {
-      const queryProduct = `
-SELECT SUM(total_money) AS total_revenue
-FROM orders; 
-`;
-      this.connection.query(queryProduct, (error, result) => {
+      let queryProduct = `
+        SELECT SUM(total_money) AS total_revenue
+        FROM orders
+      `;
+      
+      let params = [];
+
+      // Chỉ thêm điều kiện WHERE khi có startDate và endDate
+      if (startDate && endDate) {
+        queryProduct += ` WHERE created_at BETWEEN ? AND ?`;
+        // Chuyển đổi endDate để bao gồm cả ngày kết thúc
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        
+        params = [new Date(startDate), endDateTime];
+      }
+
+      this.connection.query(queryProduct, params, (error, result) => {
         if (error) {
           reject(error);
-        } else if (result && result?.length !== 0) {
-          resolve(result);
+        } else if (result && result.length !== 0) {
+          resolve(result[0]); // Trả về trực tiếp object chứa total_revenue
+        } else {
+          resolve({ total_revenue: 0 }); // Trả về 0 nếu không có dữ liệu
         }
-        resolve();
       });
     });
   }

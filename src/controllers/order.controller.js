@@ -5,6 +5,8 @@ import orderModel from "../models/order.model";
 import orderDetailModel from "../models/order-detail.model";
 import orderRoomModel from "../models/order-room.model";
 import { ORDER_STATUS, ORDER_TYPE } from "../config/constant";
+import { getBillNotify } from "../helpers/emailTemplate";
+import { sendMail } from "../helpers/sendMail";
 
 export const getAll = async (req, res) => {
   try {
@@ -55,9 +57,7 @@ export const create = async (req, res) => {
     }
 
     if (rooms && rooms.length > 0) {
-      const InValueRoom = []
       rooms.map((room) => {
-        InValueRoom.push(table.tableId);
         roomWithOrderId.push({
           ...room,
           room_id: parseInt(room.room_id),
@@ -121,11 +121,16 @@ export const update = async (req, res) => {
   try {
     const { id } = req.params;
     const body = req.body;
-    const updatedCategory = await orderModel.update("id", id, body);
+    const {status} = body
+    const updatedCategory = await orderModel.update("id", id, {status});
     const response = {
       message: "Cập nhật dữ liệu thành công",
       data: updatedCategory,
     };
+
+    if(body.status ==="CANCELLED"){
+      const resp = await sendMail(getBillNotify(body));
+    }
     return responseSuccess(res, response);
   } catch (error) {
     return responseError(res, error);
@@ -193,7 +198,8 @@ export const statisticRoomOrder = async (req, res) => {
 
 export const statisticTotalPrice = async (req, res) => {
   try {
-    const response = await orderModel.statisticTotalPrice();
+    const body = req.body;
+    const response = await orderModel.statisticTotalPrice(body?.startDate,body?.endDate);
     const data = {
       message: "Lấy dữ liệu thành công",
       data: response,
